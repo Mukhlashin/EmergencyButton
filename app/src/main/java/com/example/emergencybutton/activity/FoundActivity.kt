@@ -1,12 +1,13 @@
-package com.example.emergencybutton
+package com.example.emergencybutton.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.emergencybutton.R
 
-class LoginActivity : AppCompatActivity() {
+class FoundActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_found)
     }
 }

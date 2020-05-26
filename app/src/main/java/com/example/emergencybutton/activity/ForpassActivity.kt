@@ -1,7 +1,8 @@
-package com.example.emergencybutton
+package com.example.emergencybutton.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.emergencybutton.R
 
 class ForpassActivity : AppCompatActivity() {
 
