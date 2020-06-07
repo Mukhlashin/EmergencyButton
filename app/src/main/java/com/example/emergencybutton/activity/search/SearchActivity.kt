@@ -1,13 +1,13 @@
-package com.example.emergencybutton.activity
+package com.example.emergencybutton.activity.search
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.emergencybutton.R
 
-class LostActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_lost)
+        setContentView(R.layout.activity_search)
     }
 }

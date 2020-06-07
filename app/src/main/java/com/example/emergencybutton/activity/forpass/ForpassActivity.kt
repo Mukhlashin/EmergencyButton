@@ -1,4 +1,4 @@
-package com.example.emergencybutton.activity
+package com.example.emergencybutton.activity.forpass
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
