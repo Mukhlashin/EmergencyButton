@@ -34,6 +34,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
+                    android:id="@+id/tv_nama_barang"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="17sp"
@@ -41,6 +42,7 @@
                     android:text="Nama barang" />
 
                 <TextView
+                    android:id="@+id/tv_nama_pemosting"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
@@ -53,7 +55,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/tv_date_barang"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -64,7 +66,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/tv_lost"
             android:layout_width="50dp"
             android:textAlignment="center"
             android:background="@drawable/blue_edged_background"

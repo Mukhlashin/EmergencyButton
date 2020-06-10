@@ -1,54 +1,49 @@
 package com.example.emergencybutton.activity.login
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.emergencybutton.R
 import com.example.emergencybutton.activity.MainActivity
+import com.example.emergencybutton.activity.forpass.LoginConstruct
 import com.example.emergencybutton.activity.forpass.LoginPresenter
-import com.example.emergencybutton.activity.forpass.LoginView
-import com.example.emergencybutton.model.UserItem
-import com.example.emergencybutton.network.BaseApiService
-import com.example.emergencybutton.network.UtilsApi
+import com.example.emergencybutton.model.UserResponse
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_login.*
 
 
-open class LoginActivity : AppCompatActivity(), LoginView  {
+abstract class LoginActivity : AppCompatActivity(), LoginConstruct.View {
 
-    private var presenter: LoginPresenter = LoginPresenter(this)
+    private val presenter: LoginPresenter = LoginPresenter()
 
-    private lateinit var mApiService: BaseApiService
+    abstract val data: List<UserResponse>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        mApiService = UtilsApi.getAPIService()!!
-
-        val email = edt_email.text.toString()
-        val pass = edt_pass.text.toString()
-
         btn_login.setOnClickListener {
             goToHome()
-            presenter.postLoginData(email, pass)
+            presenter.pushLoginData(edt_email.text.toString(), edt_pass.text.toString())
+            saveUserData(data)
         }
     }
 
     override fun goToHome() {
-        val intent = Intent(this,MainActivity::class.java)
+        val intent = Intent(this@LoginActivity, MainActivity::class.java)
         startActivity(intent)
     }
 
-    override fun saveUserData(data: List<UserItem>) {
+    override fun saveUserData(data: List<UserResponse>) {
+        Toast.makeText(this, data[0].user?.get(0)?.data?.name, Toast.LENGTH_SHORT)
+    }
 
-        val mSharedPreferences = getSharedPreferences("userInfo", Context.MODE_PRIVATE)
-        val mEditor = mSharedPreferences.edit()
+    override fun isFailure(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
 
-        mEditor?.putString("id", data[0].data?.id.toString())
-        mEditor?.putString("email", data[0].data?.name.toString())
-        mEditor?.putString("pass", data[0].data?.pass.toString())
-        mEditor?.putString("number", data[0].data?.number.toString())
-        mEditor?.putString("id", data[0].data?.image.toString())
+    override fun isSuccess(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }

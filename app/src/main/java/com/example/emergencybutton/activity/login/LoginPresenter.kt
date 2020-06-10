@@ -2,35 +2,44 @@ package com.example.emergencybutton.activity.forpass
 
 import android.util.Log
 import com.androidnetworking.AndroidNetworking
+import com.androidnetworking.BuildConfig
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONObjectRequestListener
-import com.androidnetworking.interfaces.ParsedRequestListener
 import com.example.emergencybutton.model.UserItem
 import com.example.emergencybutton.model.UserResponse
 import com.example.emergencybutton.network.BaseApiService
+import com.example.emergencybutton.network.UtilsApi
+import org.json.JSONException
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
-class LoginPresenter(val view: LoginView) {
+class LoginPresenter : LoginConstruct.Presenter {
+    override fun pushLoginData(email: String, pass: String) {
+        var mApiService: BaseApiService = UtilsApi.getAPIService()!!
 
-    fun postLoginData(email: String?, pass: String?){
-        AndroidNetworking.post("http://192.168.64.2/emergencybutton/user_login.php")
-            .addBodyParameter("email", email)
-            .addBodyParameter("pass", pass)
-            .setPriority(Priority.HIGH)
-            .build()
-            .getAsObject(UserResponse::class.java, object :
-                ParsedRequestListener<UserResponse> {
-                override fun onResponse(response: UserResponse?) {
-                    response?.user?.let { view.saveUserData(it) }
-                    Log.d("response", response?.user?.get(0)?.data?.name)
+        var view: LoginConstruct.View? = null
+
+        mApiService.loginRequest(email, pass)
+            .enqueue(object : Callback<UserResponse> {
+                override fun onFailure(call: Call<UserResponse>, t: Throwable?) {
+                    Log.d("failure", t.toString())
+                    view?.isFailure(t.toString())
                 }
 
-                override fun onError(anError: ANError?) {
-
+                override fun onResponse(
+                    call: Call<UserResponse>,
+                    response: Response<UserResponse?>?
+                ) {
+                    if (response?.isSuccessful!!) {
+                        Log.d("success", response.message())
+                        view?.goToHome()
+                        view?.isSuccess(response.message())
+                    }
                 }
-
             })
     }
 }

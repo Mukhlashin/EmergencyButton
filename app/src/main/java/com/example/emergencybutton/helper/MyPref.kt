@@ -3,8 +3,9 @@ package com.example.emergencybutton.helper
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.emergencybutton.activity.login.LoginActivity
+import com.example.emergencybutton.model.UserItem
 
-class MyPref(private val context: Context) : LoginActivity() {
+class MyPref() {
 
     private val myPref: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null

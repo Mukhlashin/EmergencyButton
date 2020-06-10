@@ -1,8 +1,8 @@
 package com.example.emergencybutton.network
 
-public object UtilsApi {
+object UtilsApi {
 
-    val BASE_URL_API = "http://192.168.64.2/"
+    val BASE_URL_API = "http://192.168.64.2/emergencybutton/"
 
     // Mendeklarasikan Interface BaseApiService
     fun getAPIService(): BaseApiService? {
