@@ -1,5 +1,7 @@
 package com.example.emergencybutton.network
 
+import android.database.Observable
+import com.example.emergencybutton.model.ResponseEmergency
 import com.example.emergencybutton.model.ResponseNotification
 import com.example.emergencybutton.model.UserItem
 import com.example.emergencybutton.model.UserResponse
@@ -17,4 +19,11 @@ interface BaseApiService {
 
     @GET("things_lost_get_all.php")
     fun getAllLostThings() : Call<ResponseNotification>
+
+    @FormUrlEncoded
+    @POST("emergency_get_all.php")
+    fun getAllEmergencies(
+        @Field("lat") lat: String?,
+        @Field("lng") lng: String?
+    ) : io.reactivex.Observable<List<ResponseEmergency>>
 }

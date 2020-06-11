@@ -1,4 +1,4 @@
-package com.example.emergencybutton.activity.forpass
+package com.example.emergencybutton.activity.maps
 
 class MapsPresenter {
 }

@@ -1,19 +1,45 @@
 package com.example.emergencybutton.activity.maps
 
-import androidx.appcompat.app.AppCompatActivity
+import android.Manifest
+import android.location.Location
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.emergencybutton.R
-
+import com.example.emergencybutton.model.ResponseEmergency
+import com.example.emergencybutton.network.BaseApiService
+import com.example.emergencybutton.network.UtilsApi
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+
+class MapsActivity : AppCompatActivity(), MapsConstruct.View, OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    lateinit var locationCallback: LocationCallback
+    lateinit var locationRequest: LocationRequest
+    var compositeDisposable: CompositeDisposable = CompositeDisposable()
+
+    var mApiService: BaseApiService = UtilsApi.getAPIService()!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,23 +48,104 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        showDexterPermission()
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        mMap.uiSettings.isZoomControlsEnabled
     }
+
+    override fun showDexterPermission() {
+        Dexter.withContext(this)
+            .withPermissions(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ).withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                    if (report.areAllPermissionsGranted()) {
+
+                        buildLocationRequest()
+                        buildLocationCallback()
+
+                        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this@MapsActivity)
+
+                        //start update location
+                        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+                    }
+                }
+
+                override fun onPermissionRationaleShouldBeShown(permissions: List<PermissionRequest?>?, token: PermissionToken?) {
+                    Toast.makeText(this@MapsActivity, "permission denied", Toast.LENGTH_SHORT)
+                }
+            }).check()
+    }
+
+    override fun buildLocationRequest() {
+        locationRequest = LocationRequest()
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        locationRequest.setInterval(5000)
+        locationRequest.setFastestInterval(3000)
+        locationRequest.setSmallestDisplacement(10f)
+    }
+
+    override fun buildLocationCallback() {
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                super.onLocationResult(locationResult)
+
+                // Add a marker in my location and move the camera
+                val myLocation = LatLng(locationResult.lastLocation.latitude, locationResult.lastLocation.longitude)
+                mMap.addMarker(MarkerOptions().position(myLocation).title("my location"))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f))
+
+                getAllEmergencies(locationResult.lastLocation)
+
+            }
+        }
+    }
+
+    override fun getAllEmergencies(lastLocation: Location) {
+        compositeDisposable.add(mApiService.getAllEmergencies(lastLocation.latitude.toString(), lastLocation.longitude.toString())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribe(object : Consumer<List<ResponseEmergency>> {
+                override fun accept(t: List<ResponseEmergency>?) {
+                    for (emergency: ResponseEmergency in t!!) run {
+                        var emergencyLocation = LatLng(emergency.lat, emergency.lng)
+
+                        mMap.addMarker(MarkerOptions()
+                            .position(emergencyLocation)
+                            .title(emergency.name)
+                            .snippet(StringBuilder("Distance : "). append(emergency.distanceInKm).append(" km").toString()))
+                            .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emergency_location))
+
+                    }
+                }
+            },
+                Consumer<Throwable> { t -> Log.d("error : ", t?.localizedMessage) }))
+    }
+
+    override fun onPause() {
+        if (locationCallback != null) {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+            super.onPause()
+        }
+    }
+
+    override fun onResume() {
+        if (locationCallback != null) {
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+        }
+        super.onResume()
+    }
+
+    override fun onStop() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+        compositeDisposable.clear()
+        super.onStop()
+    }
+
 }
