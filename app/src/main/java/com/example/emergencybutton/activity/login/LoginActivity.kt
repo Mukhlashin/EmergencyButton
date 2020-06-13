@@ -1,6 +1,8 @@
 package com.example.emergencybutton.activity.login
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -9,24 +11,29 @@ import com.example.emergencybutton.activity.MainActivity
 import com.example.emergencybutton.activity.forpass.LoginConstruct
 import com.example.emergencybutton.activity.forpass.LoginPresenter
 import com.example.emergencybutton.model.UserResponse
-import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_login.*
+import retrofit2.Response
 
 
-abstract class LoginActivity : AppCompatActivity(), LoginConstruct.View {
+class LoginActivity : AppCompatActivity(), LoginConstruct.View {
 
     private val presenter: LoginPresenter = LoginPresenter()
+    lateinit var myPref: SharedPreferences
+    lateinit var loginEditor: SharedPreferences.Editor
+    lateinit var editor: SharedPreferences.Editor
 
-    abstract val data: List<UserResponse>
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+         myPref = getSharedPreferences("userInfo", Context.MODE_PRIVATE)
+         editor = getSharedPreferences("userInfo", Context.MODE_PRIVATE).edit()
+         loginEditor = getSharedPreferences("login", Context.MODE_PRIVATE).edit()
 
         btn_login.setOnClickListener {
             goToHome()
             presenter.pushLoginData(edt_email.text.toString(), edt_pass.text.toString())
-            saveUserData(data)
+            saveUserData()
         }
     }
 
@@ -35,8 +42,11 @@ abstract class LoginActivity : AppCompatActivity(), LoginConstruct.View {
         startActivity(intent)
     }
 
-    override fun saveUserData(data: List<UserResponse>) {
-        Toast.makeText(this, data[0].user?.get(0)?.data?.name, Toast.LENGTH_SHORT)
+    override fun saveUserData() {
+        loginEditor.putBoolean("isLogin", true)
+        editor.putString("nama", "test")
+        loginEditor.apply()
+        editor.apply()
     }
 
     override fun isFailure(msg: String) {

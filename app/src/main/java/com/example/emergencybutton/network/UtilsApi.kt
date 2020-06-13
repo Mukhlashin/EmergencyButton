@@ -2,7 +2,7 @@ package com.example.emergencybutton.network
 
 object UtilsApi {
 
-    val BASE_URL_API = "http://192.168.64.2/emergencybutton/"
+    private const val BASE_URL_API = "http://emergency.unjgwjforindonesia.com/"
 
     // Mendeklarasikan Interface BaseApiService
     fun getAPIService(): BaseApiService? {

@@ -7,10 +7,9 @@ interface MapsConstruct {
         fun showDexterPermission()
         fun buildLocationRequest()
         fun buildLocationCallback()
-        fun getAllEmergencies(lastLocation: Location)
     }
 
     interface Presenter {
-
+        fun getAllEmergencies(lastLocation: Location)
     }
 }

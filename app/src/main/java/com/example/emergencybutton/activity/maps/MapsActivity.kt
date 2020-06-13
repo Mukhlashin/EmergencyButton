@@ -39,7 +39,7 @@ class MapsActivity : AppCompatActivity(), MapsConstruct.View, OnMapReadyCallback
     lateinit var locationRequest: LocationRequest
     var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
-    var mApiService: BaseApiService = UtilsApi.getAPIService()!!
+    var presenter: MapsPresenter = MapsPresenter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,10 +85,10 @@ class MapsActivity : AppCompatActivity(), MapsConstruct.View, OnMapReadyCallback
 
     override fun buildLocationRequest() {
         locationRequest = LocationRequest()
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-        locationRequest.setInterval(5000)
-        locationRequest.setFastestInterval(3000)
-        locationRequest.setSmallestDisplacement(10f)
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 5000
+        locationRequest.fastestInterval = 3000
+        locationRequest.smallestDisplacement = 10f
     }
 
     override fun buildLocationCallback() {
@@ -101,31 +101,10 @@ class MapsActivity : AppCompatActivity(), MapsConstruct.View, OnMapReadyCallback
                 mMap.addMarker(MarkerOptions().position(myLocation).title("my location"))
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f))
 
-                getAllEmergencies(locationResult.lastLocation)
+                presenter.getAllEmergencies(locationResult.lastLocation)
 
             }
         }
-    }
-
-    override fun getAllEmergencies(lastLocation: Location) {
-        compositeDisposable.add(mApiService.getAllEmergencies(lastLocation.latitude.toString(), lastLocation.longitude.toString())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(Schedulers.io())
-            .subscribe(object : Consumer<List<ResponseEmergency>> {
-                override fun accept(t: List<ResponseEmergency>?) {
-                    for (emergency: ResponseEmergency in t!!) run {
-                        var emergencyLocation = LatLng(emergency.lat, emergency.lng)
-
-                        mMap.addMarker(MarkerOptions()
-                            .position(emergencyLocation)
-                            .title(emergency.name)
-                            .snippet(StringBuilder("Distance : "). append(emergency.distanceInKm).append(" km").toString()))
-                            .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emergency_location))
-
-                    }
-                }
-            },
-                Consumer<Throwable> { t -> Log.d("error : ", t?.localizedMessage) }))
     }
 
     override fun onPause() {
