@@ -1,22 +1,16 @@
 package com.example.emergencybutton.activity.maps
 
 import android.Manifest
-import android.location.Location
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.emergencybutton.R
-import com.example.emergencybutton.model.ResponseEmergency
-import com.example.emergencybutton.network.BaseApiService
-import com.example.emergencybutton.network.UtilsApi
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.karumi.dexter.Dexter
@@ -24,10 +18,7 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
 
 
 class MapsActivity : AppCompatActivity(), MapsConstruct.View, OnMapReadyCallback {
@@ -102,7 +93,6 @@ class MapsActivity : AppCompatActivity(), MapsConstruct.View, OnMapReadyCallback
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f))
 
                 presenter.getAllEmergencies(locationResult.lastLocation)
-
             }
         }
     }

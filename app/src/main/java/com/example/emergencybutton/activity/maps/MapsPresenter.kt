@@ -3,7 +3,7 @@ package com.example.emergencybutton.activity.maps
 import android.location.Location
 import android.util.Log
 import com.example.emergencybutton.R
-import com.example.emergencybutton.model.ResponseEmergency
+import com.example.emergencybutton.model.EmergencyItem
 import com.example.emergencybutton.network.BaseApiService
 import com.example.emergencybutton.network.UtilsApi
 import com.google.android.gms.maps.GoogleMap
@@ -27,16 +27,16 @@ class MapsPresenter : MapsConstruct.Presenter {
         compositeDisposable.add(mApiService.getAllEmergencies(lastLocation.latitude.toString(), lastLocation.longitude.toString())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
-            .subscribe(object : Consumer<List<ResponseEmergency>> {
-                override fun accept(t: List<ResponseEmergency>?) {
-                    for (emergency: ResponseEmergency in t!!) run {
-                        var emergencyLocation = LatLng(emergency.lat, emergency.lng)
+            .subscribe(object : Consumer<List<EmergencyItem>> {
+                override fun accept(t: List<EmergencyItem>?) {
+                    for (emergencyItem: EmergencyItem in t!!) run {
+                        var emergencyLocation = LatLng(emergencyItem.lat, emergencyItem.lng)
 
                         mMap.addMarker(
                             MarkerOptions()
                                 .position(emergencyLocation)
-                                .title(emergency.name)
-                                .snippet(StringBuilder("Distance : "). append(emergency.distanceInKm).append(" km").toString()))
+                                .title(emergencyItem.name)
+                                .snippet(StringBuilder("Distance : "). append(emergencyItem.distanceInKm).append(" km").toString()))
                             .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emergency_location))
 
                     }

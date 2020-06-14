@@ -92,6 +92,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_login">
 
         <Button
+            android:id="@+id/btn_forpass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -99,6 +100,7 @@
             android:textAllCaps="false" />
 
         <Button
+            android:id="@+id/btn_go_to_regis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
