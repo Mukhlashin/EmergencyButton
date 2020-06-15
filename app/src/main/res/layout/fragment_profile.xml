@@ -37,7 +37,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/circleImageView"
+            android:id="@+id/cmv_profile"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="start"

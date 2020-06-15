@@ -6,6 +6,7 @@ import com.example.emergencybutton.model.UserItem
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
+import java.io.File
 
 interface BaseApiService {
     
@@ -63,6 +64,6 @@ interface BaseApiService {
     @POST("upload.php")
     fun uploadUserPhoto(
         @Field("name") name: String?,
-        @Part("picture") image: RequestBody?
+        @Part("picture") image: File?
     ): Call<EmergencyItem>
 }

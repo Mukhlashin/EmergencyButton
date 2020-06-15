@@ -1,21 +1,33 @@
 package com.example.emergencybutton.fragment.profile
 
+import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-
 import com.example.emergencybutton.R
+import com.example.emergencybutton.activity.MainActivity
 import com.example.emergencybutton.activity.login.LoginActivity
-import com.example.emergencybutton.activity.register.RegisterActivity
+import com.theartofdev.edmodo.cropper.CropImage
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_profile.view.*
+import pub.devrel.easypermissions.EasyPermissions
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 
 /**
  * A simple [Fragment] subclass.
@@ -27,6 +39,12 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
     lateinit var loginEditor: SharedPreferences.Editor
 
     var presenter: ProfilePresenter = ProfilePresenter(this)
+
+    private val RC_CAMERA = 1
+    val REQUEST_TAKE_PHOTO = 1
+    val REQUEST_CHOOSE_PHOTO = 2
+
+    var file: File = File("multipart/form-data")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,9 +62,15 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
         loginEditor = context!!.getSharedPreferences("login", Context.MODE_PRIVATE).edit()
 
         showDataUser()
+        setFotoProfile()
 
         view.btn_logout.setOnClickListener {
             clearLoginData()
+        }
+
+        view.cmv_profile.setOnClickListener {
+            checkCameraPermission()
+            cropImageAutoSelection()
         }
 
         view.btn_edit_profile.setOnClickListener {
@@ -56,6 +80,15 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
                 edt_profile_email.text.toString(),
                 myPref.getString("email", "").toString(),
                 edt_profile_pass.text.toString())
+            presenter.uploadUserImage(edt_profile_nama.text.toString(), file)
+        }
+    }
+
+    private fun cropImageAutoSelection() {
+        activity?.let {
+            CropImage.activity()
+                .setAspectRatio(2, 2)
+                .start(it)
         }
     }
 
@@ -71,6 +104,11 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
         edt_profile_email.setText(email)
         edt_profile_pass.setText(pass)
 
+    }
+
+    override fun setFotoProfile() {
+        myPref.getString("image", "")
+        view?.cmv_profile?.let { Glide.with(this).load(myPref.getString("picture", "")).into(it) }
     }
 
     override fun clearLoginData(): AlertDialog? {
@@ -100,11 +138,100 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
         startActivity(intent)
     }
 
+    override fun uploadPhotoSucces(photo: String?) {
+        Toast.makeText(context, "Berhasil", Toast.LENGTH_SHORT).show()
+    }
+
     override fun onFailure(msg: String) {
 
     }
 
     override fun onSuccess(msg: String) {
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
+            val extras = data!!.extras
+            val bitmap = extras!!["data"] as Bitmap?
+            //ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            val filesDir: File = context!!.getFilesDir()
+            val imageFile = File(filesDir, "image" + ".jpg")
+            val os: OutputStream
+            try {
+                os = FileOutputStream(imageFile)
+                bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, os)
+                os.flush()
+                os.close()
+                file = imageFile
+                view?.cmv_profile?.setImageBitmap(bitmap)
+            } catch (e: Exception) {
+                Log.e(javaClass.simpleName, "Error writing bitmap", e)
+            }
+        } else if (requestCode == REQUEST_CHOOSE_PHOTO && resultCode == Activity.RESULT_OK) {
+            val uri = data!!.data
+            //try crop
+            this.activity?.let { CropImage.activity(uri).setAspectRatio(1, 1).start(it) }
+        }
+
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            val result: CropImage.ActivityResult? = CropImage.getActivityResult(data)
+            if (resultCode == Activity.RESULT_OK) {
+                val imageUri: Uri = result!!.uri
+                try {
+                    val bitmap = MediaStore.Images.Media.getBitmap(
+                        this.context?.contentResolver,
+                        imageUri
+                    ) as Bitmap
+                    val filesDir: File = context!!.filesDir
+                    val imageFile = File(filesDir, "image" + ".jpg")
+                    editor.putString("image", imageFile.toString())
+                    val os: OutputStream
+                    os = FileOutputStream(imageFile)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os)
+                    os.flush()
+                    os.close()
+                    this.file = imageFile
+                    if (bitmap != null) {
+                        view!!.cmv_profile.setImageBitmap(bitmap)
+                    } else {
+                        setFotoProfile()
+                    }
+                } catch (e: IOException) {
+                    Log.e(javaClass.simpleName, "Error writing bitmap", e)
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    private fun checkCameraPermission() {
+        val perm = Manifest.permission.CAMERA
+        if (view?.context?.let { EasyPermissions.hasPermissions(it, perm) }!!) {
+        } else {
+            EasyPermissions.requestPermissions(
+                this,
+                "Butuh permission camera",
+                RC_CAMERA,
+                perm
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    fun getPicFromCamera() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (context?.packageManager?.let { takePictureIntent.resolveActivity(it) } != null) {
+            startActivityForResult(
+                takePictureIntent,
+                REQUEST_TAKE_PHOTO
+            )
+        }
     }
 }

@@ -66,11 +66,11 @@ class HomeFragment : Fragment(), HomeConstruct.View {
     }
 
     override fun isFailure(msg: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun isSuccess(msg: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun changeImageON() {
