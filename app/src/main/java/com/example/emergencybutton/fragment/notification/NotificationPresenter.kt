@@ -13,19 +13,17 @@ class NotificationPresenter(val view : NotificationConstruct.View) : Notificatio
     override fun getNotificationData() {
         var mApiService: BaseApiService = UtilsApi.getAPIService()!!
 
-        var view: NotificationConstruct.View? = null
-
         mApiService.getAllLostThings()
             .enqueue(object : Callback<ResponseNotification> {
                 override fun onFailure(call: Call<ResponseNotification>?, t: Throwable?) {
                     Log.d("failure", t.toString())
-                    view?.onFailure(t.toString())
+                    view.onFailure(t.toString())
                 }
 
                 override fun onResponse(call: Call<ResponseNotification>?, response: Response<ResponseNotification>?) {
                     Log.d("success", response?.body().toString())
-                    view?.onSuccess("success", response?.body().toString())
-                    view?.showData(response?.body()?.data)
+                    view.onSuccess("success", response?.body().toString())
+                    view.showData(response?.body()?.data)
                 }
 
             })

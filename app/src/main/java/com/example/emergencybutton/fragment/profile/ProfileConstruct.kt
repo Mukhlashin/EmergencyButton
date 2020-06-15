@@ -1,6 +1,7 @@
 package com.example.emergencybutton.fragment.profile
 
 import android.app.AlertDialog
+import com.example.emergencybutton.model.EditProfileModel
 import okhttp3.RequestBody
 import java.io.File
 
@@ -15,7 +16,7 @@ interface ProfileConstruct {
         fun onSuccess(msg: String)
     }
     interface Presenter{
-        fun pushUserData(nama: String, number: String, email: String, oldEmail: String, pass: String)
-        fun uploadUserImage(nama: String, image: File?)
+        fun pushUserData(model : EditProfileModel, companion : EditProfileModel.Companion)
+        fun uploadUserImage(model : EditProfileModel, companion: EditProfileModel.Companion)
     }
 }

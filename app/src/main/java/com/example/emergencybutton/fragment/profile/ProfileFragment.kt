@@ -18,8 +18,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.emergencybutton.R
-import com.example.emergencybutton.activity.MainActivity
 import com.example.emergencybutton.activity.login.LoginActivity
+import com.example.emergencybutton.model.EditProfileModel
+import com.example.emergencybutton.model.EditProfileModel.Companion.model
 import com.theartofdev.edmodo.cropper.CropImage
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_profile.view.*
@@ -44,7 +45,7 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
     val REQUEST_TAKE_PHOTO = 1
     val REQUEST_CHOOSE_PHOTO = 2
 
-    var file: File = File("multipart/form-data")
+    var file: File? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,13 +75,29 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
         }
 
         view.btn_edit_profile.setOnClickListener {
-            presenter.pushUserData(
-                edt_profile_nama.text.toString(),
-                edt_profile_number.text.toString(),
-                edt_profile_email.text.toString(),
-                myPref.getString("email", "").toString(),
-                edt_profile_pass.text.toString())
-            presenter.uploadUserImage(edt_profile_nama.text.toString(), file)
+
+            var fileGambar: File
+
+            if (file != null) {
+                fileGambar = file as File
+                var modelCompanion : EditProfileModel.Companion = EditProfileModel
+                modelCompanion.setEmail(edt_profile_email.text.toString())
+                modelCompanion.setNama(edt_profile_nama.text.toString())
+                modelCompanion.setPassword(edt_profile_pass.text.toString())
+                modelCompanion.setNumber(edt_profile_number.text.toString())
+                modelCompanion.setFileGambar(fileGambar)
+
+                presenter.pushUserData(model, modelCompanion)
+                presenter.uploadUserImage(model, modelCompanion)
+            } else {
+                var modelCompanion : EditProfileModel.Companion = EditProfileModel
+                modelCompanion.setEmail(edt_profile_email.text.toString())
+                modelCompanion.setNama(edt_profile_nama.text.toString())
+                modelCompanion.setPassword(edt_profile_pass.text.toString())
+                modelCompanion.setNumber(edt_profile_number.text.toString())
+
+                presenter.pushUserData(model, modelCompanion)
+            }
         }
     }
 
@@ -107,8 +124,8 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
     }
 
     override fun setFotoProfile() {
-        myPref.getString("image", "")
-        view?.cmv_profile?.let { Glide.with(this).load(myPref.getString("picture", "")).into(it) }
+        var image = myPref.getString("image", "")
+        view?.cmv_profile?.let { Glide.with(this).load(image).into(it) }
     }
 
     override fun clearLoginData(): AlertDialog? {
@@ -139,15 +156,15 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
     }
 
     override fun uploadPhotoSucces(photo: String?) {
-        Toast.makeText(context, "Berhasil", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, photo, Toast.LENGTH_SHORT).show()
     }
 
     override fun onFailure(msg: String) {
-
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun onSuccess(msg: String) {
-
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -157,7 +174,7 @@ class ProfileFragment : Fragment(), ProfileConstruct.View {
             val bitmap = extras!!["data"] as Bitmap?
             //ByteArrayOutputStream bos = new ByteArrayOutputStream();
 //bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-            val filesDir: File = context!!.getFilesDir()
+            val filesDir: File = context!!.filesDir
             val imageFile = File(filesDir, "image" + ".jpg")
             val os: OutputStream
             try {

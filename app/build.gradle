@@ -15,7 +15,7 @@ android {
 
         multiDexEnabled true
 
-        buildConfigField "String", "BASE_URL", '"http://192.168.64.2/emergencybutton/"'
+        buildConfigField "String", "BASE_URL", '"http://emergency.unjgwjforindonesia.com/"'
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8

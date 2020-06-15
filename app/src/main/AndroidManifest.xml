@@ -22,7 +22,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".DetailActivity"></activity>
+        <activity android:name=".activity.detail.DetailActivity"></activity>
         <activity android:name=".activity.search.SearchActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
