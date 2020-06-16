@@ -11,8 +11,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import com.bumptech.glide.Glide
 import com.example.emergencybutton.R
+import com.example.emergencybutton.activity.MainActivity
 import com.example.emergencybutton.activity.maps.MapsPresenter
+import com.example.emergencybutton.fragment.notification.NotificationFragment
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -28,6 +33,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.karumi.dexter.listener.single.PermissionListener
+import kotlinx.android.synthetic.main.activity_detail.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 
@@ -59,10 +65,25 @@ class HomeFragment : Fragment(), HomeConstruct.View {
 
         tv_nama.text = myPref.getString("nama", "")
 
+        Glide.with(this).load(myPref.getString("image", "")).into(cmv_home_profile)
+
         btn_emergency.setOnClickListener {
             showDexterPermission()
             changeImageON()
         }
+
+        btn_losfon.setOnClickListener {
+            goToNotification()
+        }
+    }
+
+    override fun goToNotification() {
+        var fm : FragmentManager? = fragmentManager
+        var ft : FragmentTransaction = fm!!.beginTransaction()
+        var notificationFragment = NotificationFragment()
+        ft.replace(R.id.vp_main, notificationFragment)
+        ft.addToBackStack("")
+        ft.commit()
     }
 
     override fun isFailure(msg: String) {

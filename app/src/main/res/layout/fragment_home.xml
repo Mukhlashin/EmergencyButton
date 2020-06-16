@@ -45,10 +45,11 @@
             android:textColor="@android:color/black" />
 
         <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/cmv_home_profile"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="center"
-            android:background="@mipmap/ic_launcher" />
+            android:src="@mipmap/ic_launcher" />
 
     </FrameLayout>
 
@@ -75,6 +76,7 @@
         app:layout_constraintTop_toBottomOf="@+id/spn_menu" />
 
     <Button
+        android:id="@+id/btn_losfon"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:background="@drawable/white_edged_background"

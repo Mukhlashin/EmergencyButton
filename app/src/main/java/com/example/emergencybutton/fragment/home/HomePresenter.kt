@@ -1,5 +1,6 @@
 package com.example.emergencybutton.fragment.home
 
+import com.bumptech.glide.Glide
 import com.example.emergencybutton.R
 import com.example.emergencybutton.model.EmergencyItem
 import com.example.emergencybutton.network.BaseApiService
@@ -10,6 +11,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.android.synthetic.main.activity_detail.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -18,6 +20,7 @@ import java.lang.StringBuilder
 class HomePresenter(val view: HomeConstruct.View) : HomeConstruct.Presenter {
 
     var mApiService: BaseApiService = UtilsApi.getAPIService()!!
+
 //    lateinit var googleMapDelegate: IGoogleMapDelegate
 //    private  var mMap: GoogleMap = GoogleMap(googleMapDelegate)
 //    private lateinit var emergencyItem: EmergencyItem

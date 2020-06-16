@@ -5,6 +5,7 @@ import android.os.Bundle
 import com.example.emergencybutton.R
 import com.example.emergencybutton.adapter.SectionsPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import java.text.FieldPosition
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,6 +16,5 @@ class MainActivity : AppCompatActivity() {
         val sectionPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
         vp_main.adapter = sectionPagerAdapter
         tab_detail.setupWithViewPager(vp_main)
-
     }
 }

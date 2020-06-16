@@ -8,6 +8,7 @@ interface HomeConstruct {
         fun isSuccess(msg : String)
         fun changeImageON()
         fun changeImageOFF()
+        fun goToNotification()
         fun showDialog(): AlertDialog?
         fun showDexterPermission()
         fun buildLocationRequest()
