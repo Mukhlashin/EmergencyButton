@@ -32,7 +32,6 @@ class NotificationAdapter(
     }
 
     class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-
         fun bindItem(items: NotificationItem, listener: (NotificationItem) -> Unit) {
             tv_nama_barang.text = items.name
             tv_nama_pemosting.text = items.postersName
